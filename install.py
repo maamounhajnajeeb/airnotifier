@@ -75,7 +75,7 @@ if __name__ == "__main__":
         if not "managers" in collection_names:
             masterdb.create_collection("managers")
             #  masterdb.managers.ensure_index("username", unique=True)
-            masterdb.managers.ensure_index("email", unique=True)
+            masterdb.managers.create_index("email", unique=True)
             logging.info("db.managers installed")
             try:
                 user = masterdb.managers.find_one({"email": EMAIL})
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                         DEFAULTPASSWORD, options.passwordsalt
                     )
                     manager["orgid"] = 0
-                    masterdb["managers"].insert(manager)
+                    masterdb["managers"].insert_one(manager)
                     logging.info(
                         "Admin user created, username: %s, password: %s"
                         % (EMAIL, DEFAULTPASSWORD)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     option_ver = {}
                     option_ver["name"] = "version"
                     option_ver["value"] = VERSION
-                    masterdb["options"].insert(option_ver)
+                    masterdb["options"].insert_one(option_ver)
                     logging.info(("Version number written: %s" % VERSION))
             except Exception:
                 logging.error("Failed to write version number")

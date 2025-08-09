@@ -34,7 +34,8 @@ from bson import *
 from constants import *
 from tornado.options import define, options
 
-define("mongouri", default="mongodb://localhost:27017/", help="MongoDB host name")
+# define("mongouri", default="mongodb://localhost:27017/", help="MongoDB host name")
+define("mongouri", default="mongodb://mongo:27017/", help="MongoDB host name")
 define("masterdb", default="airnotifier", help="MongoDB DB to store information")
 define("appprefix", default="", help="DB name prefix")
 

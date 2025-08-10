@@ -25,8 +25,6 @@ if [ ! -f "$LOGFILE_ERR" ]; then
   touch "$LOGFILE_ERR"
 fi
 
-echo "Installing new pymongo verions"
-pipenv install "pymongo>=4.6.3"
 echo "Installing AirNotifier ..."
 pipenv run ./install.py
 echo "Starting AirNotifier ..."

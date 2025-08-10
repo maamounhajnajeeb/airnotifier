@@ -41,9 +41,8 @@ EMAIL = "admin@airnotifier"
 DEFAULTPASSWORD = "admin"
 
 define("masterdb", default="airnotifier", help="MongoDB DB to store information")
+# define("mongouri", default="mongodb://localhost:27017/", help="MongoDB host name")
 define("mongouri", default="mongodb://mongo:27017/", help="MongoDB host name")
-EMAIL = "admin@airnotifier"
-DEFAULTPASSWORD = "admin"
 
 define("apns", default=(), help="APNs address and port")
 define("pemdir", default="pemdir", help="Directory to store pems")
@@ -51,8 +50,6 @@ define(
     "passwordsalt", default="d2o0n1g2s0h3e1n1g", help="Being used to make password hash"
 )
 
-
-logging.basicConfig(level=logging.INFO, force=True)
 
 if __name__ == "__main__":
     if not path.exists("config.py"):
@@ -72,31 +69,30 @@ if __name__ == "__main__":
         logging.info(("Failed to created applications collection", ex))
 
     try:
-        # create manager collection if not exists
         if not "managers" in collection_names:
             masterdb.create_collection("managers")
-            masterdb.managers.create_index("email", unique=True)
+            masterdb.managers.ensure_index("email", unique=True)
             logging.info("db.managers installed")
-
-        # create manager user
         try:
             user = masterdb.managers.find_one({"email": EMAIL})
             if not user:
                 manager = {}
                 manager["email"] = EMAIL
-                manager["password"] = get_password(DEFAULTPASSWORD, options.passwordsalt)
+                manager["password"] = get_password(
+                    DEFAULTPASSWORD, options.passwordsalt
+                )
                 manager["orgid"] = 0
                 masterdb["managers"].insert_one(manager)
                 logging.info(
                     "Admin user created, username: %s, password: %s"
                     % (EMAIL, DEFAULTPASSWORD)
                 )
+                print("admin user added")
         except Exception as ex:
             logging.error(("Failed to create admin user", ex))
 
     except CollectionInvalid:
         logging.info("Failed to created managers collection")
-        pass
 
     try:
         if not "options" in collection_names:
@@ -110,7 +106,7 @@ if __name__ == "__main__":
                 option_ver["value"] = VERSION
                 masterdb["options"].insert_one(option_ver)
                 logging.info(("Version number written: %s" % VERSION))
-        except Exception:
-            logging.error("Failed to write version number")
+        except Exception as option_ex:
+            logging.error(f"Failed to write version number, {option_ex}")
     except CollectionInvalid:
-        logging.error("db.options not installed")
+        logging.error("db.options installed")

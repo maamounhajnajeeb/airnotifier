@@ -87,7 +87,7 @@ class AppAccessKeysHandler(WebBaseHandler):
             # Alternative key generator, this is SHORT
             # crc = binascii.crc32(str(uuid.uuid4())) & 0xffffffff
             # key['key'] = '%08x' % crc
-            keyObjectId = self.db.keys.insert(key)
+            keyObjectId = self.db.keys.insert_one(key)
             self.redirect("/applications/%s/keys" % appname)
         else:
             key["key"] = self.get_argument("accesskey").strip()

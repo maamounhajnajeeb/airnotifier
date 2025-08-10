@@ -73,27 +73,27 @@ if __name__ == "__main__":
         pass
 
     try:
+        # create manager collection if not exists
         if not "managers" in collection_names:
             masterdb.create_collection("managers")
-            #  masterdb.managers.ensure_index("username", unique=True)
             masterdb.managers.create_index("email", unique=True)
             logging.info("db.managers installed")
-            try:
-                user = masterdb.managers.find_one({"email": EMAIL})
-                if not user:
-                    manager = {}
-                    manager["email"] = EMAIL
-                    manager["password"] = get_password(
-                        DEFAULTPASSWORD, options.passwordsalt
-                    )
-                    manager["orgid"] = 0
-                    masterdb["managers"].insert_one(manager)
-                    logging.info(
-                        "Admin user created, username: %s, password: %s"
-                        % (EMAIL, DEFAULTPASSWORD)
-                    )
-            except Exception as ex:
-                logging.error(("Failed to create admin user", ex))
+
+        # create manager user
+        try:
+            user = masterdb.managers.find_one({"email": EMAIL})
+            if not user:
+                manager = {}
+                manager["email"] = EMAIL
+                manager["password"] = get_password(DEFAULTPASSWORD, options.passwordsalt)
+                manager["orgid"] = 0
+                masterdb["managers"].insert_one(manager)
+                logging.info(
+                    "Admin user created, username: %s, password: %s"
+                    % (EMAIL, DEFAULTPASSWORD)
+                )
+        except Exception as ex:
+            logging.error(("Failed to create admin user", ex))
 
     except CollectionInvalid:
         logging.info("Failed to created managers collection")

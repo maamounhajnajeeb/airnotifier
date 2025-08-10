@@ -70,7 +70,6 @@ if __name__ == "__main__":
             logging.info("db.applications installed")
     except CollectionInvalid as ex:
         logging.info(("Failed to created applications collection", ex))
-        pass
 
     try:
         # create manager collection if not exists
@@ -103,15 +102,15 @@ if __name__ == "__main__":
         if not "options" in collection_names:
             masterdb.create_collection("options")
             logging.info("db.options installed")
-            try:
-                version = masterdb["options"].find_one({"name": "version"})
-                if not version:
-                    option_ver = {}
-                    option_ver["name"] = "version"
-                    option_ver["value"] = VERSION
-                    masterdb["options"].insert_one(option_ver)
-                    logging.info(("Version number written: %s" % VERSION))
-            except Exception:
-                logging.error("Failed to write version number")
+        try:
+            version = masterdb["options"].find_one({"name": "version"})
+            if not version:
+                option_ver = {}
+                option_ver["name"] = "version"
+                option_ver["value"] = VERSION
+                masterdb["options"].insert_one(option_ver)
+                logging.info(("Version number written: %s" % VERSION))
+        except Exception:
+            logging.error("Failed to write version number")
     except CollectionInvalid:
-        logging.error("db.options installed")
+        logging.error("db.options not installed")

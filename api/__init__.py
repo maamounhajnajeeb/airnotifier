@@ -224,7 +224,7 @@ class APIBaseHandler(tornado.web.RequestHandler):
         log["info"] = strip_tags(info)
         log["level"] = strip_tags(level)
         log["created"] = int(time.time())
-        self.db.logs.insert(log)
+        self.db.logs.insert_one(log)
 
 
 class EntityBuilder(object):
@@ -288,9 +288,9 @@ class TokenV1Handler(APIBaseHandler):
 
         token = EntityBuilder.build_token(devicetoken, device, self.appname, channel)
         try:
-            result = self.db.tokens.update(
+            result = self.db.tokens.update_one(
                 {"device": device, "token": devicetoken, "appname": self.appname},
-                token,
+                {"$set": token},
                 upsert=True,
             )
             # result
@@ -325,7 +325,7 @@ class UsersHandler(APIBaseHandler):
             if cursor:
                 self.send_response(BAD_REQUEST, dict(error="email already exists"))
             else:
-                userid = self.db.users.insert(user)
+                userid = self.db.users.insert_one(user)
                 self.add_to_log("Add user", email)
                 self.send_response(OK, {"userid": str(userid)})
         except Exception as ex:
@@ -381,7 +381,7 @@ class ObjectHandler(APIBaseHandler):
         self.classname = classname
         data = json_decode(self.request.body)
         self.objectid = ObjectId(objectId)
-        result = self.db[self.collection].update({"_id": self.objectid}, data)
+        result = self.db[self.collection].update_one({"_id": self.objectid}, {"$set": data})
 
     @property
     def collection(self):
@@ -404,7 +404,7 @@ class ClassHandler(APIBaseHandler):
             col["collection"] = self.classname
             col["created"] = int(time.time())
             self.add_to_log("Register collection", self.classname)
-            self.db.objects.insert(col)
+            self.db.objects.insert_one(col)
 
         collectionname = "%s%s" % (options.collectionprefix, self.classname)
         return collectionname
@@ -439,7 +439,7 @@ class ClassHandler(APIBaseHandler):
             self.send_response(BAD_REQUEST, ex)
 
         self.add_to_log("Add object to %s" % self.classname, data)
-        objectId = self.db[self.collection].insert(data)
+        objectId = self.db[self.collection].insert_one(data)
         self.send_response(OK, dict(objectId=objectId))
 
 
@@ -470,7 +470,7 @@ class AccessKeysV1Handler(APIBaseHandler):
             | API_PERMISSIONS["send_broadcast"][0]
         )
         key["key"] = md5(str(uuid.uuid4())).hexdigest()
-        self.db.keys.insert(key)
+        self.db.keys.insert_one(key)
         self.send_response(OK, dict(accesskey=key["key"]))
 
     def verify_request(self):

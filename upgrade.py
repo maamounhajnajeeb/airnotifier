@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 app["gcmprojectnumber"] = ""
             if not "gcmapikey" in app:
                 app["gcmapikey"] = ""
-            masterdb.applications.update({"_id": appid}, app, upsert=True)
+            masterdb.applications.update_one({"_id": appid}, {"$set": app}, upsert=True)
 
             ## Adding device to token collections
             db = mongodb[appprefix + appname]
@@ -75,9 +75,9 @@ if __name__ == "__main__":
                 tokenid = ObjectId(token["_id"])
                 if not "device" in token:
                     token["device"] = DEVICE_TYPE_IOS
-                    result = db["tokens"].update({"_id": tokenid}, token, upsert=True)
+                    result = db["tokens"].update_one({"_id": tokenid}, {"$set": token}, upsert=True)
 
-        r = masterdb["options"].update(
+        r = masterdb["options"].update_one(
             {"name": "version"}, {"$set": {"value": 20140315}}, upsert=True
         )
         version_object = masterdb["options"].find_one({"name": "version"})
@@ -218,8 +218,8 @@ if __name__ == "__main__":
                 app[KEY_APNS_KEYID] = ""
             if not KEY_APNS_TEAMID in app:
                 app[KEY_APNS_TEAMID] = ""
-            masterdb.applications.update({"_id": appid}, app, upsert=True)
-            masterdb.applications.update(
+            masterdb.applications.update_one({"_id": appid}, {"$set": app}, upsert=True)
+            masterdb.applications.update_one(
                 {"_id": appid},
                 {
                     "$unset": {

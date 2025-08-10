@@ -296,8 +296,8 @@ class AdminHandler(WebBaseHandler):
                 user["orgid"] = int(self.get_argument("orgid", 0))
             else:
                 user["orgid"] = currentuser_orgid
-            result = self.masterdb.managers.update(
-                {"email": user["email"]}, user, upsert=True
+            result = self.masterdb.managers.update_one(
+                {"email": user["email"]}, {"$set": user}, upsert=True
             )
             managers = self.masterdb.managers.find()
             if result["updatedExisting"]:
@@ -319,7 +319,7 @@ class AdminHandler(WebBaseHandler):
         elif action == "changepassword":
             password = self.get_argument("newpassword").strip()
             passwordhash = get_password(password, options.passwordsalt)
-            self.masterdb.managers.update(
+            self.masterdb.managers.update_one(
                 {"email": self.currentuser["email"]},
                 {"$set": {"password": passwordhash}},
             )

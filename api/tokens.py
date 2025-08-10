@@ -81,9 +81,9 @@ class TokenV2Handler(APIBaseHandler):
 
         token = EntityBuilder.build_token(devicetoken, device, self.appname, channel)
         try:
-            result = self.db.tokens.update(
+            result = self.db.tokens.update_one(
                 {"device": device, "token": devicetoken, "appname": self.appname},
-                token,
+                {"$set": token},
                 upsert=True,
             )
             # result
